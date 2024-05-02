@@ -138,8 +138,6 @@
     <section class="container-fluid my-3">
       <form>
         <div class="grid-container">
-          
-          
           <!-- custom select dropdown -->
           <div class="select-box span3">
             <div class="options-container">
@@ -149,22 +147,23 @@
           </div>
 
           <div class="other span3" style="display: none">
-            <div class="input-group">
-            <input 
-              type="color"
-              id="color"
-              class="form-control form-control-color"
-              value="#dd00dd"
-            />
+            <div id="color-wrapper">
+              <input
+                type="color"
+                id="color"
+                class="form-control"
+                value="#dd00dd"
+                title="Choose your color"
+              />
+            </div>
             <input
               type="text"
               id="text"
               class="form-control w-75"
-              maxlength="100"
+              maxlength="140"
               placeholder="Share your feeling and a color"
-                    title="Choose your color"
+              title="Add your text"
             />
-            </div>
           </div>
 
           <div class="span3">
@@ -178,15 +177,12 @@
           </div>
 
           <div>
-            <button type="submit" class="btn btn-primary">
-              Submit
-            </button>
+            <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </div>
       </form>
       <div class="msg text-center"></div>
     </section>
-    
 
     <section class="container rows text-center">
       <p>

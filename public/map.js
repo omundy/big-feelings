@@ -27,9 +27,9 @@ L.tileLayer(tiles, {
 /**
  *  Called (by main.js) on load and after form submission
  */
-function updateMap(data) {
+function updateMap(data) {  
   
-  // 👉 add code inside this function (from Chapter 10) ...
+  // 👉 add code inside this function (Chapter 10) ...
   
   // remove all the markers
   removeMarkers();

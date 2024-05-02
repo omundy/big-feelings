@@ -227,13 +227,40 @@ img {
   display: none;
 }
 
+
+/* OTHER (the text box) */
+
+.other {
+/*   display: block !important; */
+}
+#color-wrapper{
+  display: inline-block;
+  vertical-align: -8px;
+  margin-left: 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  overflow: hidden;
+}
+[type="color"] {
+  border: 0;
+  padding: 0;
+  width: 200%;
+  height: 200%;
+  cursor: pointer;
+  transform: translate(-25%, -25%)
+}
+#text {
+  display: inline-block;
+}
+
 /* MSG */
 
 .msg {
   height: 40px;
   color: white;
   opacity: 0;
-  transition: opacity .7s ease-in;
+  transition: opacity .5s ease-in;
 }
 .msg.visible {
   opacity: 1;

@@ -1,7 +1,7 @@
 // client-side js run by the browser
 
 async function main() {
-  // 👉 add code inside this function (from Chapter 10) ...
+  // 👉 add code inside this function (Chapter 10) ...
 
   // get feelings data
   let data = await fetchFeelings();
@@ -16,7 +16,7 @@ main();
 function submitForm(e) {
   e.preventDefault();
 
-  // 👉 add code inside this function (from Chapter 10) ...
+  // 👉 add code inside this function (Chapter 10) ...
 
   let data = getFormData();
   console.log("data", data);
@@ -36,7 +36,7 @@ function submitForm(e) {
       // console.log("/feeling", json);
       await updateMap(json);
       await displayData(json);
-      showSuccessMsg("Your feeling was added");
+      showSuccessMsg("Your feeling was added", data.color);
     });
 
   // 👈

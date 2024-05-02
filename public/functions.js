@@ -107,9 +107,10 @@ function checkOne(id, colors) {
 }
 
 let msg = document.querySelector(".msg");
-function showSuccessMsg(str) {
+function showSuccessMsg(str,color="white") {
   console.log("showSuccessMsg()", str);
   msg.innerHTML = str;
+  msg.style.color = color;
   msg.classList.add("visible");
   setTimeout(function () {
     msg.classList.remove("visible");
