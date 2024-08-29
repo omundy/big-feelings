@@ -30,13 +30,26 @@ const routes = async (server, options) => {
     let lat = request.body.lat || "";
     let lng = request.body.lng || "";
 
-    let sql = `INSERT INTO Feelings (feeling,color,lat,lng) 
-               VALUES ("${feeling}","${color}","${lat}","${lng}");`;
+    let sql = `INSERT INTO Feelings (feeling,color,lat,lng,datetime) 
+               VALUES ("${feeling}","${color}","${lat}","${lng}","${new Date().toISOString()}");`;
     let result = await db.runQuery(sql);
     let data = await db.getAll();
     return data;
   });
-
+  
+  // EXPERIMENTAL ROUTES (we made while writing the book)
+  
+  server.get("/api/feelingsSorted", async function (request, reply) {
+    console.log("GET -> /api/feelingsSorted");
+    let data = await db.getAllByFeeling();
+    return data;
+  });  
+  server.get("/api/feelingsGrouped", async function (request, reply) {
+    console.log("GET -> /api/getAllGrouped");
+    let data = await db.getAllGrouped();
+    return data;
+  });
+  
   // TEST ROUTES
   // - endpoints accessed directly and then redirect browser back to index.html
   // - turn these off in public version

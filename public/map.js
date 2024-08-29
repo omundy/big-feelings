@@ -36,7 +36,7 @@ function updateMap(data) {
 
   // loop through JSON
   for (let i = 0; i < data.length; i++) {
-    console.log(data[i]);
+    // console.log(data[i]);
     
     // create marker and add to array
     markerLayer[i] = createMarker(data[i]);

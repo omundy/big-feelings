@@ -67,7 +67,11 @@ function updateOptions(colors) {
     options += getOption(row, colors[row].feeling, colors[row].color);
   }
   // append custom
-  options += getOption(colors.length, "add your own!", "grey");
+  
+  
+  let colorValue = "#" + randomHex()
+  
+  options += getOption(colors.length, "add your own!", colorValue);
   // insert into html
   optionsContainer.innerHTML = options;
 
@@ -88,6 +92,9 @@ function updateOptions(colors) {
       optionsContainer.classList.remove("active");
     });
   });
+  
+  document.querySelector("#color").setAttribute("value",colorValue);
+  document.querySelector("#color").style.color = colorValue;
 }
 
 function checkOne(id, colors) {
@@ -117,3 +124,13 @@ function showSuccessMsg(str,color="white") {
   }, 2600);
 }
 
+function randomHex() {
+    let hex = "", chars = "0123456789abcdef";
+    for (let i = 0; i < 6; i++) {
+        hex += chars[randomInt(0, chars.length - 1)];
+    }
+    return hex;
+}
+function randomInt(min = 1, max = 100) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
