@@ -8,7 +8,7 @@ async function main() {
   // update the map
   await updateMap(data);
   // await displayData(data);
-  await updateChart();
+  // await updateChart();
 
   // 👈
 }
@@ -40,7 +40,7 @@ function submitForm(e) {
         // console.log("/feeling", json);
         await updateMap(json);
         // await displayData(json);
-        await updateChart();
+        // await updateChart();
         showSuccessMsg("Your feeling was added", data.color);
       });
 
@@ -50,10 +50,6 @@ function submitForm(e) {
   }
 }
 
-/**
- *  Submit event listener
- */
-document.querySelector("form").addEventListener("submit", submitForm);
 
 //////////////////////////////////////
 ///////////// FUNCTIONS //////////////
@@ -110,7 +106,7 @@ function getFormData() {
     feeling = colors[id].feeling;
     color = colors[id].color;
   } else {
-    // otherwise they chose "other"
+    // they chose "addYourOwn"
     feeling = this.text.value;
     color = this.color.value;
   }
@@ -128,7 +124,7 @@ function getFormData() {
 
 // turns off Glitch warnings for these files (defined outside of this file)
 var updateMap = window.updateMap;
-var updateChart = window.updateChart;
+// var updateChart = window.updateChart;
 var displayData = window.displayData;
 var updateOptions = window.updateOptions;
 var showSuccessMsg = window.showSuccessMsg;
