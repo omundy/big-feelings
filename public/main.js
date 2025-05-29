@@ -122,9 +122,3 @@ function getFormData() {
   };
 }
 
-// turns off Glitch warnings for these files (defined outside of this file)
-var updateMap = window.updateMap;
-// var updateChart = window.updateChart;
-var displayData = window.displayData;
-var updateOptions = window.updateOptions;
-var showSuccessMsg = window.showSuccessMsg;

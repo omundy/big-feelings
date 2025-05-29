@@ -120,5 +120,3 @@ async function fetchFeelingsSorted() {
   });
 })();
 
-// turns off Glitch warnings for these files (defined outside of this file)
-var Chart = window.Chart;

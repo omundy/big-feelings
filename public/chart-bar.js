@@ -76,7 +76,3 @@ async function updateChart () {
     },
   });  
 };
-
-// turns off Glitch warnings for these files (defined outside of this file)
-var Chart = window.Chart;
-var myChart = window.myChart;

@@ -1,7 +1,7 @@
 // route.js - Add endpoints to the API
 
 // 👉 import functions from database.js here (Chapter 10)
-import db from "./database.js";
+import db from "./database-sqlite.js";
 
 const routes = async (server, options) => {
   // endpoint > test
