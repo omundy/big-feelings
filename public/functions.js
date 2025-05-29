@@ -60,6 +60,10 @@ let blurInt = setInterval(function () {
 
 function updateOptions(colors) {
   let optionsContainer = document.querySelector(".options-container");
+  if(!optionsContainer) {
+    console.log("optionsContainer not defined");
+    return;
+  }
   let selected = document.querySelector(".selected");
   let options = "";
   // for each option
@@ -67,7 +71,12 @@ function updateOptions(colors) {
     options += getOption(row, colors[row].feeling, colors[row].color);
   }
   // append custom
-  options += getOption(colors.length, "add your own!", "grey");
+  
+  
+  let colorValue = "#" + randomHex()
+  
+  
+  options += getOption(colors.length, "Add your own!", colorValue);
   // insert into html
   optionsContainer.innerHTML = options;
 
@@ -88,31 +97,62 @@ function updateOptions(colors) {
       optionsContainer.classList.remove("active");
     });
   });
+  
+  document.querySelector("#color").setAttribute("value",colorValue);
+  document.querySelector("#color").style.color = colorValue;
 }
-
+// display an option as checked
 function checkOne(id, colors) {
   let inputList = document.querySelectorAll('input[name="feelings"]');
   inputList.forEach((input) => {
     input.checked = false;
     if (input.id == id) input.checked = true;
   });
-  // console.log(id, colors.length);
+  // console.log("checkOne()", id, colors.length);
 
-  // show / hide "other" input
+  let addYourOwn = document.querySelector(".addYourOwn");
+  if(!addYourOwn) {
+    console.log("addYourOwn not defined");
+    return;
+  }
+  // show / hide "addYourOwn" input
   if (id == colors.length) {
-    document.querySelector(".other").style.display = "block";
+    addYourOwn.style.display = "block";
   } else {
-    document.querySelector(".other").style.display = "none";
+    addYourOwn.style.display = "none";
   }
 }
 
-let msg = document.querySelector(".msg");
-function showSuccessMsg(str) {
+
+function showSuccessMsg(str,color="white") {
+  let msg = document.querySelector(".msg");
+  if(!msg) {
+    console.log("msg not defined");
+    return;
+  }
   console.log("showSuccessMsg()", str);
   msg.innerHTML = str;
+  msg.style.color = color;
   msg.classList.add("visible");
   setTimeout(function () {
     msg.classList.remove("visible");
   }, 2600);
 }
 
+function randomHex() {
+    let hex = "", chars = "0123456789abcdef";
+    for (let i = 0; i < 6; i++) {
+        hex += chars[randomInt(0, chars.length - 1)];
+    }
+    return hex;
+}
+function randomInt(min = 1, max = 100) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// test
+// let skyGradient = document.querySelector("#firstGradient");
+// function updateBackgroundColor() {
+//   console.log(document.body.style.backgroundColor, skyGradient.getAttribute("stop-color"))
+//   document.body.style.backgroundColor = skyGradient.style.fill;
+// }
+// setInterval(updateBackgroundColor,1000)

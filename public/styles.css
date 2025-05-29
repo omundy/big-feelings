@@ -1,8 +1,10 @@
 /* styles */
 
 :root {
-  --bg1: #ffd7ce;
-  --bg2: #facbf4;
+/*   --bg1: #ffd7ce; */
+/*   --bg2: #facbf4; */
+  --bg1: #111;
+  --bg2: #351A7D;
   --hot: #ff073a;
   --hot-bg: transparent;
   --hot-hover: #f89cbd;
@@ -14,21 +16,24 @@
 
 html,
 body {
+  width:100%;
+  height: 100%;
   margin: 0;
-  min-height: 2000px;
+  padding:0;
   background: var(--bg1);
   background: linear-gradient(143deg, var(--bg1) 0%, var(--bg2) 100%);
 }
 
 /* stacked header, logo, background */
 
-header {
+.logo {
   height: 50px;
   font-family: "Great Vibes", cursive;
   font-weight: 100;
   font-style: normal;
   font-size: 3rem;
   color: var(--hot);
+  vertical-align:center;
 }
 .absolute-centered {
   position: absolute;
@@ -38,6 +43,7 @@ header {
   margin-left: auto;
   margin-right: auto;
 }
+.fixed-row-bottom { position: fixed; bottom: 0;}
 svg.bubbles {
   width: 300px;
   height: 100px;
@@ -48,11 +54,16 @@ svg.bubbles {
   z-index: 99999998;
 }
 svg.logo {
-  margin-top: 15px;
+  position: absolute;
   width: 300px;
   height: 60px;
   z-index: 99999999;
-  /*   border:1px solid red; */
+/*   border:1px solid red; */
+  bottom:.5rem;
+  left:0;
+}
+svg.bubbles circle, svg.bubbles ellipse {
+  fill: var(--bg1);
 }
 .blur {
   filter: blur(10px);
@@ -73,6 +84,9 @@ svg.logo {
   grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
   grid-column-gap: 2px;
   grid-row-gap: 2px;
+}
+.grid-container * {
+  border: 1px solid green;
 }
 
 .grid-container > .span2 {
@@ -102,6 +116,33 @@ svg.logo {
   --bs-btn-disabled-bg: var(--hot-bg);
   --bs-btn-disabled-border-color: var(--hot-bg);
 }
+
+
+/* popup window */
+.popup {
+  font-family: "Edu AU VIC WA NT Hand", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* popupInput */
+
+.popupInput {
+  font-size: 1rem;
+  width:250px; 
+  background-color: rgba(255,255,255,0.8); 
+  padding: 3px 0 0 0; 
+}
+
+.popupData {
+  font-size:
+}
+
+
+
 
 /* dropdown */
 
@@ -227,13 +268,40 @@ img {
   display: none;
 }
 
+
+/* addYourOwn (the text box) */
+
+.addYourOwn {
+  display: none;
+}
+#color-wrapper{
+  display: inline-block;
+  vertical-align: -8px;
+/*   margin-left: 4px; */
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  overflow: hidden;
+}
+[type="color"] {
+  border: 0;
+  padding: 0;
+  width: 200%;
+  height: 200%;
+  cursor: pointer;
+  transform: translate(-25%, -25%)
+}
+#text {
+  display: inline-block;
+}
+
 /* MSG */
 
 .msg {
-  height: 40px;
+  height: 20px;
   color: white;
   opacity: 0;
-  transition: opacity .7s ease-in;
+  transition: opacity .5s ease-in;
 }
 .msg.visible {
   opacity: 1;
@@ -243,8 +311,14 @@ img {
 /* MAP */
 
 #map {
-  height: 500px;
-  width: 100%;
+  position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+/*   height: 100%;
+  width: 100%; */
+  z-index: 0;
 }
 .leaflet-container {
   background: var(--bg1);

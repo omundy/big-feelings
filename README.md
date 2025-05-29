@@ -14,8 +14,8 @@ This project uses Node.js (backend) to returns data to the browser (frontend).
 
 ## Notes
 
+- The [Big Feelings (Starter)](https://glitch.com/edit/#!/big-feelings-starter) is a simpler version that appears in Chapter 10 "Design & Power" in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press, 2025).
 - Both the `big-feelings` and `big-feelings-starter` Git repos are exported from Glitch.
-- The `big-feelings-starter` is a simpler version that appears in Chapter 10 "Design & Power" in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press, 2025).
 - To export from Glitch to Github: Click Tools > Import/Export > Export to Github
 
 

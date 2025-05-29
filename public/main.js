@@ -1,13 +1,14 @@
 // client-side js run by the browser
 
 async function main() {
-  // 👉 add code inside this function (from Chapter 10) ...
+  // 👉 add code inside this function (Chapter 10) ...
 
   // get feelings data
   let data = await fetchFeelings();
   // update the map
   await updateMap(data);
-  await displayData(data);
+  // await displayData(data);
+  // await updateChart();
 
   // 👈
 }
@@ -15,37 +16,40 @@ main();
 
 function submitForm(e) {
   e.preventDefault();
+  try {
+    // 👉 add code inside this function (Chapter 10) ...
 
-  // 👉 add code inside this function (from Chapter 10) ...
+    let data = getFormData();
+    console.log("data", data);
+    if (data.feeling == "" || data.lat == "" || data.lng == "") {
+      throw new Error();
+    }
 
-  let data = getFormData();
-  console.log("data", data);
+    // create options object to send data, options
+    let options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+    // console.log("submit", data);
+    fetch("/api/feeling", options)
+      .then((response) => response.json())
+      .then(async (json) => {
+        // console.log("/feeling", json);
+        await updateMap(json);
+        // await displayData(json);
+        // await updateChart();
+        showSuccessMsg("Your feeling was added", data.color);
+      });
 
-  // create options object to send data, options
-  let options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  };
-  // console.log("submit", data);
-  fetch("/api/feeling", options)
-    .then((response) => response.json())
-    .then(async (json) => {
-      // console.log("/feeling", json);
-      await updateMap(json);
-      await displayData(json);
-      showSuccessMsg("Your feeling was added");
-    });
-
-  // 👈
+    // 👈
+  } catch (e) {
+    showSuccessMsg("Please add a feeling and select a location", "white");
+  }
 }
 
-/**
- *  Submit event listener
- */
-document.querySelector("form").addEventListener("submit", submitForm);
 
 //////////////////////////////////////
 ///////////// FUNCTIONS //////////////
@@ -102,7 +106,7 @@ function getFormData() {
     feeling = colors[id].feeling;
     color = colors[id].color;
   } else {
-    // otherwise they chose "other"
+    // they chose "addYourOwn"
     feeling = this.text.value;
     color = this.color.value;
   }
@@ -118,8 +122,9 @@ function getFormData() {
   };
 }
 
-// turns of Glitch warnings for these files (defined outside of this file)
+// turns off Glitch warnings for these files (defined outside of this file)
 var updateMap = window.updateMap;
+// var updateChart = window.updateChart;
 var displayData = window.displayData;
 var updateOptions = window.updateOptions;
 var showSuccessMsg = window.showSuccessMsg;

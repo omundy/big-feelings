@@ -45,9 +45,11 @@ async function createTable() {
           'color' TEXT, 
           'lat' TEXT, 
           'lng' TEXT, 
-          'datetime' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')));`);
+          'datetime' DATETIME NOT NULL
+  );`);
   console.log("✅ New table created!");
 }
+// To default to a specific time: 'datetime' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 
 //////////////////////////////////////
 /////////// PUBLIC FUNCTIONS /////////
@@ -65,6 +67,12 @@ const db = {
   },
   getAll: async () => {
     return allQuery(`SELECT * FROM ${table};`);
+  },
+  getAllByFeeling: async () => {
+    return feelingsSorted();
+  },
+  getAllGrouped: async () => {
+    return feelingsGrouped();
   },
   deleteAll: async () => {
     return clearData();
@@ -147,8 +155,8 @@ export async function addTestRow(data) {
   // console.log(data);
   try {
     const response = await new Promise((resolve, reject) => {
-      let sql = `INSERT INTO ${table} (feeling,color,lat,lng) 
-                 VALUES ("${data.feeling}","${data.color}","${data.lat}","${data.lng}");`;
+      let sql = `INSERT INTO ${table} (feeling,color,lat,lng,datetime) 
+                 VALUES ("${data.feeling}","${data.color}","${data.lat}","${data.lng}","${data.datetime}");`;
       // console.log("sql", sql);
       database.run(sql, (err, result) => {
         if (err) {
@@ -173,6 +181,28 @@ export async function addTestData(count = 150) {
   console.log("✅ Test data added!");
 }
 
+// Get all rows, sort them by date
+async function feelingsSorted() {
+  let rows = await allQuery(`SELECT * FROM ${table} ORDER BY datetime ASC;`);
+  // previously, these were sorted. Now handled in frontend
+  // let arr = {};
+  // for (let i = 0; i < rows.length; i++) {
+  //   // add it if it hasn't yet
+  //   if (!arr[rows[i].feeling]) 
+  //     arr[rows[i].feeling] = [];
+  //   arr[rows[i].feeling].push(rows[i]);
+  // }
+  // console.log(arr);
+  return rows;
+}
+
+// Get all rows, grouped by feeling
+async function feelingsGrouped() {
+  let rows = await allQuery(`SELECT feeling, color, count(*) as count FROM ${table} GROUP BY feeling ORDER BY feeling ASC;`);
+  // console.log(rows);
+  return rows;
+}
+
 //////////////////////////////////////
 /////////////// HELPERS //////////////
 //////////////////////////////////////
@@ -187,7 +217,15 @@ async function creatTestData() {
   let geo = randomLatLng() || "";
   data.lat = geo.latitude || "";
   data.lng = geo.longitude || "";
+  data.datetime =
+    getRandomDate(new Date("2022-11-01T12:00"), new Date()).toISOString() || "";
   return data;
+}
+
+function getRandomDate(from, to) {
+  const fromTime = from.getTime();
+  const toTime = to.getTime();
+  return new Date(fromTime + Math.random() * (toTime - fromTime));
 }
 
 function randomLatLng() {
