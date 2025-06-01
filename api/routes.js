@@ -6,7 +6,6 @@
 
 import express from 'express';
 var router = express.Router();
-// 👉 import functions from database.js here (Chapter 10)
 import db from "./mongodb.js";
 
 
