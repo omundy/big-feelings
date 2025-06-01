@@ -1,4 +1,4 @@
-[
+const testGeo = [
   {
     "latitude": -33.825309753,
     "longitude": 18.668960571
@@ -3999,4 +3999,5 @@
     "latitude": 55.820358276,
     "longitude": 37.797142029
   }
-]
+];
+export default testGeo;

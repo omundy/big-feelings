@@ -228,8 +228,3 @@ function removeMarkers() {
 function getFillOpacity() {
   return map.getZoom() / 25;
 }
-
-// removes warnings (L already defined in HTML file)
-var L = window.L;
-var submitForm = window.submitForm;
-var updateOptions = window.updateOptions;

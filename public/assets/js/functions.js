@@ -60,8 +60,8 @@ let blurInt = setInterval(function () {
 
 function updateOptions(colors) {
   let optionsContainer = document.querySelector(".options-container");
-  if(!optionsContainer) {
-    console.log("optionsContainer not defined");
+  if (!optionsContainer) {
+    // console.log("optionsContainer not defined");
     return;
   }
   let selected = document.querySelector(".selected");
@@ -71,11 +71,11 @@ function updateOptions(colors) {
     options += getOption(row, colors[row].feeling, colors[row].color);
   }
   // append custom
-  
-  
+
+
   let colorValue = "#" + randomHex()
-  
-  
+
+
   options += getOption(colors.length, "Add your own!", colorValue);
   // insert into html
   optionsContainer.innerHTML = options;
@@ -97,8 +97,8 @@ function updateOptions(colors) {
       optionsContainer.classList.remove("active");
     });
   });
-  
-  document.querySelector("#color").setAttribute("value",colorValue);
+
+  document.querySelector("#color").setAttribute("value", colorValue);
   document.querySelector("#color").style.color = colorValue;
 }
 // display an option as checked
@@ -111,7 +111,7 @@ function checkOne(id, colors) {
   // console.log("checkOne()", id, colors.length);
 
   let addYourOwn = document.querySelector(".addYourOwn");
-  if(!addYourOwn) {
+  if (!addYourOwn) {
     console.log("addYourOwn not defined");
     return;
   }
@@ -124,9 +124,9 @@ function checkOne(id, colors) {
 }
 
 
-function showSuccessMsg(str,color="white") {
+function showSuccessMsg(str, color = "white") {
   let msg = document.querySelector(".msg");
-  if(!msg) {
+  if (!msg) {
     console.log("msg not defined");
     return;
   }
@@ -140,14 +140,14 @@ function showSuccessMsg(str,color="white") {
 }
 
 function randomHex() {
-    let hex = "", chars = "0123456789abcdef";
-    for (let i = 0; i < 6; i++) {
-        hex += chars[randomInt(0, chars.length - 1)];
-    }
-    return hex;
+  let hex = "", chars = "0123456789abcdef";
+  for (let i = 0; i < 6; i++) {
+    hex += chars[randomInt(0, chars.length - 1)];
+  }
+  return hex;
 }
 function randomInt(min = 1, max = 100) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 // test
 // let skyGradient = document.querySelector("#firstGradient");

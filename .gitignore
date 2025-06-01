@@ -1,5 +1,4 @@
 
-
 # Windows
 Thumbs.db
 desktop.ini
@@ -12,3 +11,6 @@ desktop.ini
 
 # Javascript
 node_modules
+.vercel
+.env
+.env*.local
