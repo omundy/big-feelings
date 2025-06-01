@@ -17,7 +17,7 @@ This project uses Node.js (backend) to returns data to the browser (frontend).
 ## Notes
 
 - The finished version https://github.com/omundy/big-feelings
-- The starter project https://github.com/omundy/big-feelings-starter appears in Chapter 10 "Design & Power"in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press).
+- The starter project https://github.com/criticalwebdesign/big-feelings-starter appears in Chapter 10 "Design & Power"in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press).
 
 
 <hr>
