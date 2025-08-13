@@ -6,7 +6,7 @@
 
 import express from 'express';
 var router = express.Router();
-import db from "./mongodb.js";
+import db from "./database/mongodb.js";
 
 
 router.get("/api", async (req, res) => {
@@ -26,9 +26,6 @@ router.get("/api/feelings", async function (req, res) {
   }
   res.json(result);
 });
-
-
-
 
 // 👈
 

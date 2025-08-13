@@ -1,6 +1,14 @@
 # Big Feelings
 
-<!-- Note: These instructions are the same across the two projects -->
+<!-- 
+Note: The README instructions are the same across the two projects... 
+
+Since moving from hosting from Glitch to Github:
+- You can't have a forked repo and the original in the same account. 
+- You can't sync a fork of a template repo with the original.
+- So, in order for -starter to be a fork of the original (to sync w/it), the original repo is under omundy/ and -starter (template) is under criticalwebdesign/ 
+
+-->
 
 A web map where users can share and locate their current emotional state (in text and color) on a world map.
 

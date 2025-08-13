@@ -52,7 +52,7 @@ async function fetchFeelings() {
   let data = [];
   try {
     // get feelings data
-    data = await fetchData("https://big-feelings.vercel.app/api/feelings");
+    data = await fetchData("/api/feelings");
     // if no data throw an error
     if (!data || data.length < 1)
       throw new Error("Issue retrieving data from Mongo");
