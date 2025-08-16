@@ -1,26 +1,24 @@
 /**
- *  MongoDB (Simple) - Owen Mundy 2025
- *  - A simple interface for MongoDb
+ *  mongodb.js - A simple interface for MongoDb
+ *  - Owen Mundy 2025
  */
 
-let testingPath = "../../";
-testingPath = ""; // production
+let testingPath = ""; // production
+// testingPath = "../../"; // enable for running this directly
 
 //////////////////////////////////////
-///////////// PASSWORDS //////////////
+//////////// ENVIRONMENT /////////////
 //////////////////////////////////////
 
 // import dotenv utility (to get saved password strings)
 import dotenv from 'dotenv'
 dotenv.config({ path: testingPath + '.env' })
-
-
-console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
 // confirm the .env file contains the MONGODB_URI variable
 if (!process.env.MONGODB_URI) {
     throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 // else, save your MongoDB connection string
+// console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
 const uri = process.env.MONGODB_URI;
 
 
@@ -38,7 +36,7 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 // module-scoped variables
 let clientPromise, database, collection;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version (see Atlas connect script)
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -46,22 +44,6 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
-
-// // create db connection
-// async function connect() {
-//   try {
-//     // Connect the client to the server	(optional starting in v4.7)
-//     await client.connect();
-//     // Send a ping to confirm a successful connection
-//     await client.db("admin").command({ ping: 1 });
-//     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-//   } finally {
-//     // Ensures that the client will close when you finish/error
-//     // await client.close();
-//   }
-// }
-// connect().catch(console.dir);
-
 
 
 async function connectToDatabase() {
@@ -79,12 +61,14 @@ async function connectToDatabase() {
 }
 await connectToDatabase();
 
-// // close connection when server finishes/errors
+// // close connection when server finishes/errors - unclear if still required
 // process.on('SIGINT', async function () {
 //     await client.close();
 //     console.log('Database disconnected on app termination');
 //     process.exit(0);
 // });
+
+
 
 //////////////////////////////////////
 /////////// PUBLIC FUNCTIONS /////////
@@ -92,7 +76,7 @@ await connectToDatabase();
 
 let db;
 try {
-     db = {
+    db = {
         pingDatabase: async () => {
             return await client.db("admin").command({ ping: 1 });
         },
@@ -100,17 +84,11 @@ try {
         getAll: getAll,
         addOne: addOne,
         dberror: async () => {
-            return new Error('This is a test error thrown in mongodb.js');
+            return new Error('A test error thrown in mongodb.js');
         },
-        deleteAll: async () => {
-            return deleteAll();
-        },
-        addTestDataSingle: async () => {
-            return addTestDataSingle();
-        },
-        addTestDataMultiple: async () => {
-            return addTestDataMultiple();
-        },
+        deleteAll: deleteAll,
+        addRandomDataSingle: addRandomDataSingle,
+        addRandomDataMultiple: addRandomDataMultiple,
         collection: async () => collection
     };
 } catch (err) { console.log("Problem creating db", err) }
@@ -120,6 +98,7 @@ export default db;
 //////////// DB FUNCTIONS ////////////
 //////////////////////////////////////
 
+// db > get one data (via API)
 async function getOne() {
     // return await collection.find({}).toArray();
     try {
@@ -129,6 +108,7 @@ async function getOne() {
         return feelings;
     } catch (err) { console.log("Problem with getAll()", err) }
 }
+// db > get all data (via API)
 async function getAll() {
     // return await collection.find({}).toArray();
     try {
@@ -137,61 +117,67 @@ async function getAll() {
         return feelings;
     } catch (err) { console.log("Problem with getAll()", err) }
 }
+// db > add data from form (via API)
 async function addOne(doc) {
     try {
         let docs = []
         docs.push(doc)
-        console.log("✅ addOne() - Fata added!");
+        console.log("✅ addOne() - SUCCESS");
         // Insert the documents into the specified collection        
-        return await addTestDocument(docs);
+        return await insertDocuments(docs);
     } catch (err) { console.error("Problem with addOne()", err) }
 }
-
-
-//////////////////////////////////////
-////////////// DEBUGGING /////////////
-//////////////////////////////////////
-
-async function addTestDataSingle() {
+// db > add data
+async function insertDocuments(docs) {
+    // console.log(docs);
     try {
-        let docs = []
-        // docs.push({
-        //     "feeling": "Totz Bored",
-        //     "color": "#FF2E24",
-        //     "lat": 32.067665100,
-        //     "lng": 34.776332855,
-        //     "datetime": new Date(2025, 5, 7),  // May 7, 1954                                                                                                                                  
-        // })
-        docs.push(creatTestDocument())
-        console.log("✅ addTestDataSingle() - Test data added!");
         // Insert the documents into the specified collection        
-        return await addTestDocument(docs);
-    } catch (err) { console.error("Problem with addTestDataSingle()", err) }
+        const response = await database
+            .collection(collectionName)
+            .insertMany(docs, { ordered: false }, function (err, docs) {
+                console.log("✅ insertDocuments()", err, docs);
+            });
+        return response;
+    } catch (err) { console.log("Problem with insertDocuments()", err) }
 }
 
-// Adds multiple new rows
-async function addTestDataMultiple(count = 50) {
+
+//////////////////////////////////////
+////////////// TESTING ///////////////
+//////////////////////////////////////
+
+const exampleDoc = {
+    "feeling": "Totz Bored",
+    "color": "#FF2E24",
+    "lat": 32.067665100,
+    "lng": 34.776332855,
+    "datetime": new Date(2025, 5, 7),  // May 7, 2025                                                                                                                                  
+};
+
+// db > add random data 
+async function addRandomDataSingle() {
+    try {
+        let docs = [];
+        // docs.push(exampleDoc);
+        docs.push(creatTestDocument());
+        let result = await insertDocuments(docs);
+        console.log("✅ addRandomDataSingle() - SUCCESS");
+        return result;
+    } catch (err) { console.error("Problem with addRandomDataSingle()", err) }
+}
+
+// db > add multiple random data 
+async function addRandomDataMultiple(count = 50) {
     try {
         let docs = [];
         // Create new documents   
         for (let i = 0; i < count; i++) {
             docs.push(await creatTestDocument());
         }
-        console.log("✅ addTestDataMultiple() - Test data added!");
-        return await addTestDocument(docs);
-    } catch (err) { console.error("Problem with addTestDataMultiple()", err) }
-}
-
-// Add a new test row
-async function addTestDocument(docs) {
-    // console.log(docs);
-    try {
-        // Insert the documents into the specified collection        
-        const response = await database.collection(collectionName).insertMany(docs, { ordered: false }, function (err, docs) {
-            console.log("✅ addTestDocument()", err, docs);
-        });
-        return response;
-    } catch (err) { console.log("Problem with addTestDocument()", err) }
+        let result = await insertDocuments(docs);
+        console.log("✅ addRandomDataMultiple() - SUCCESS");
+        return result;
+    } catch (err) { console.error("Problem with addRandomDataMultiple()", err) }
 }
 
 // Deletes all data in the table
@@ -200,16 +186,16 @@ async function deleteAll() {
     console.log("✅ Table is empty");
 }
 
+
+
 //////////////////////////////////////
 /////////////// HELPERS //////////////
 //////////////////////////////////////
 
-// import colors from "../public/assets/js/colors.js";
-
 import * as fs from "fs";
 let colors;
-
 try {
+    // uses fs because this directory is outside the /api
     colors = JSON.parse(fs.readFileSync(testingPath + "public/assets/data/colors.json"));
 }
 catch (err) {
@@ -225,7 +211,7 @@ function creatTestDocument() {
     let data = colors[Math.floor(Math.random() * colors.length)];
     let testGeo = randomLatLng() || "";
     data._id = randomStr() + randomStr();
-    data.lat = Number(testGeo.latitude || "");
+    data.lat = Number(testGeo.latitude || ""); // convert to number
     data.lng = Number(testGeo.longitude || "");
     data.datetime = new Date();
     // console.log("creatTestDocument()", data);
@@ -233,12 +219,12 @@ function creatTestDocument() {
 }
 
 const randomStr = () => Math.random().toString(36).slice(-5);
+const randomLatLng = () => testGeo[Math.floor(Math.random() * testGeo.length)];
 
-function randomLatLng() {
-    // too random
-    // data.lat = randomNumber(-60,60);
-    // data.lng = randomNumber(-140,150);
-    return testGeo[Math.floor(Math.random() * testGeo.length)];
+// these numbers are too random
+function randomLatLngNumbers() {
+    data.lat = randomNumber(-60, 60);
+    data.lng = randomNumber(-140, 150);
 }
 
 function randomNumber(min, max) {

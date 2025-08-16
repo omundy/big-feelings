@@ -115,14 +115,14 @@ router.get("/test/getAll", async (req, res) => {
   res.send(template("/test/getAll()", output));
 });
 
-router.get("/test/addTestDataSingle", async (req, res) => {
-  let response = await db.addTestDataSingle()
-  res.send(template("/test/addTestDataSingle()", `<pre>${JSON.stringify(response)}</pre>`));
+router.get("/test/addRandomDataSingle", async (req, res) => {
+  let response = await db.addRandomDataSingle()
+  res.send(template("/test/addRandomDataSingle()", `<pre>${JSON.stringify(response)}</pre>`));
 });
 
-router.get("/test/addTestDataMultiple", async (req, res) => {
-  let response = await db.addTestDataMultiple()
-  res.send(template("/test/addTestDataMultiple()", `<pre>${JSON.stringify(response)}</pre>`));
+router.get("/test/addRandomDataMultiple", async (req, res) => {
+  let response = await db.addRandomDataMultiple()
+  res.send(template("/test/addRandomDataMultiple()", `<pre>${JSON.stringify(response)}</pre>`));
 });
 
 // remove all database entries
@@ -140,8 +140,8 @@ const testingLinks = [
   '/test/dberrorcaught',
   '/test/pingDatabase',
   '/test/getAll',
-  '/test/addTestDataSingle',
-  '/test/addTestDataMultiple',
+  '/test/addRandomDataSingle',
+  '/test/addRandomDataMultiple',
   // '/test/deleteAll',
   '/api',
   '/api/feelings'

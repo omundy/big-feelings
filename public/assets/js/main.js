@@ -1,4 +1,4 @@
-// client-side js run by the browser
+// main.js (client side, run by the browser) 
 
 
 

@@ -38,7 +38,6 @@ function updateMap(data) {
 
     // remove all the markers
     removeMarkers();
-
     // loop through JSON
     for (let i = 0; i < data.length; i++) {
         // console.log(data[i]);
@@ -67,7 +66,7 @@ function createMarker(row) {
     marker
         .addTo(map).bindPopup(popup)
         .on('click', function () {
-            console.log("createMarker()", color)
+            console.log("createMarker()", color);
             // updatePopupColor(color)
         });
     return marker;
@@ -204,21 +203,14 @@ map.on("zoomend", (e) => {
     });
 });
 
-// // constrain viewport to map tiles (SW, NE) on drag
-// let bounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
-// map.setMaxBounds(bounds);
-// map.on("drag", function () {
-//   map.panInsideBounds(bounds, { animate: false });
-// });
-
 //////////////////////////////////////
 ////////////// FUNCTIONS /////////////
 //////////////////////////////////////
 
-// removes all markers from the map
+// remove all markers from the map
 function removeMarkers() {
-    // remove visible marker
     for (let i = 0; i < markerLayer.length; i++) {
+        // remove visible marker
         map.removeLayer(markerLayer[i]);
     }
     // empty the array
@@ -226,5 +218,5 @@ function removeMarkers() {
 }
 
 function getFillOpacity() {
-    return map.getZoom() / 25;
+    return map.getZoom() / 45;
 }
