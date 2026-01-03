@@ -149,10 +149,3 @@ function randomHex() {
 function randomInt(min = 1, max = 100) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// test
-// let skyGradient = document.querySelector("#firstGradient");
-// function updateBackgroundColor() {
-//   console.log(document.body.style.backgroundColor, skyGradient.getAttribute("stop-color"))
-//   document.body.style.backgroundColor = skyGradient.style.fill;
-// }
-// setInterval(updateBackgroundColor,1000)
