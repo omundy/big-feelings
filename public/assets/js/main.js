@@ -1,11 +1,13 @@
 // main.js (client side, run by the browser) 
 
+// declare data in global scope so to access from other functions
+let data = [];
 
 
 async function main() {
   // 👉 add code inside this function (Chapter 10) ...
 
-  let data = await fetchFeelings();
+  data = await fetchFeelings();
   // console.log("data", data)
 
   // update the map

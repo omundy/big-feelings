@@ -65,9 +65,10 @@ svg.logo {
 svg.bubbles circle, svg.bubbles ellipse {
   fill: var(--bg1);
 }
-.blur {
+/* This looks very bad at lower opacities */
+/* .blur {
   filter: blur(10px);
-}
+} */
 
 /* color icons */
 
@@ -137,9 +138,6 @@ svg.bubbles circle, svg.bubbles ellipse {
   padding: 3px 0 0 0; 
 }
 
-.popupData {
-  font-size:
-}
 
 
 

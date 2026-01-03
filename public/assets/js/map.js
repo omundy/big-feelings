@@ -3,7 +3,7 @@
 //////////////////////////////////////
 
 // array to hold markers
-let markerLayer = [];
+let markerLayer = [], visibleMarkerPoints = 0;
 
 // INITIALIZE MAP
 var map = L.map("map", {
@@ -33,7 +33,6 @@ L.tileLayer(tiles, {
  *  Called (by main.js) on load and after form submission
  */
 function updateMap(data) {
-
     // 👉 add code inside this function (Chapter 10) ...
 
     // remove all the markers
@@ -45,46 +44,39 @@ function updateMap(data) {
         // create marker and add to array
         markerLayer[i] = createMarker(data[i]);
     }
-
+    checkAddColorGradients();
     // 👈
 }
 
+
+
 /**
- *  Create and add feeling marker to map
+ *  Create and add feeling CircleMarker to map
+ * 	https://leafletjs.com/reference.html#circlemarker
  */
 function createMarker(row) {
     let popupContent = `<span class="popup" style="color:${row.color};">${row.feeling}</span>`;
     let color = row.color;
     let marker = L.circleMarker([row.lat, row.lng], {
-        radius: 50,
+        radius: 80,
         stroke: false,
-        color: row.color,
+		color: "transparent", // stroke color
+        fillColor: getRadialGradientDef(row.color),
         fillOpacity: getFillOpacity(),
-        className: "blur",
     });
     let popup = L.popup({ className: "hello" }).setContent(popupContent);
     marker
         .addTo(map).bindPopup(popup)
         .on('click', function () {
             console.log("createMarker()", color);
-            // updatePopupColor(color)
+            // updatePopupBackgroundColor(color);
         });
     return marker;
 }
 
 
-function updatePopupColor(color) {
-    console.log("updatePopupColor()", color)
-    let wrapper = document.querySelector(".leaflet-popup-content-wrapper");
-    let tip = document.querySelector(".leaflet-popup-tip");
-    wrapper.style.backgroundColor = color;
-    tip.style.backgroundColor = color;
 
 
-    // let parent = document.querySelector(".leaflet-popup");
-    // parent.style.backgroundColor = color;
-
-}
 
 
 
@@ -183,7 +175,7 @@ map.on("click", (e) => {
     // inputMarkerPopup.setLatLng(latlng).setContent(latlng.toString()).openOn(map);
     inputMarkerPopup.setLatLng(latlng);
     map.openPopup(inputMarkerPopup);
-    // updatePopupColor("white");
+    // updatePopupBackgroundColor("white");
     let location = document.querySelector("#location");
     location.value = `${latlng.lat},${latlng.lng}`;
 
@@ -193,15 +185,18 @@ map.on("click", (e) => {
 
 // close popups on zoom
 map.on("zoomstart", (e) => {
-    // map.closePopup();
+    // map.closePopup(); // disabled
 });
 
 // update marker opacity
 map.on("zoomend", (e) => {
+    visibleMarkerPoints = countVisibleMarkerPoints();
     markerLayer.forEach(function (marker, i) {
         marker.setStyle({ fillOpacity: getFillOpacity() });
     });
 });
+
+
 
 //////////////////////////////////////
 ////////////// FUNCTIONS /////////////
@@ -215,8 +210,96 @@ function removeMarkers() {
     }
     // empty the array
     markerLayer = [];
+
+    // We are about to update markers on the map, so count the number of marker points 
+	// (using global data object) that will be visible in the viewport in order to determine opacity
+    visibleMarkerPoints = countVisibleMarkerPoints();
 }
 
+
+//////////////////////////////////////
+///////// FUNCTIONS > COLOR //////////
+//////////////////////////////////////
+
+/**
+ * Update background color of popup to feeling color - No longer used
+ */
+// function updatePopupBackgroundColor(color) {
+//     //console.log("updatePopupBackgroundColor()", color)
+//     let wrapper = document.querySelector(".leaflet-popup-content-wrapper");
+//     let tip = document.querySelector(".leaflet-popup-tip");
+//     wrapper.style.backgroundColor = color;
+//     tip.style.backgroundColor = color;
+//     // let parent = document.querySelector(".leaflet-popup");
+//     // parent.style.backgroundColor = color;
+// }
+
+/**
+ * Return number of data points in current viewport to determine marker opacity
+ */
+function countVisibleMarkerPoints() {
+	var bounds = map.getBounds();
+	var count = 0;
+	for (let i = 0; i < data.length; i++) {
+		if (bounds.contains(L.latLng(data[i].lat, data[i].lng)))
+			count++;
+	}
+	console.log("visibleMarkerPoints", count);
+	return count;
+}
+
+/**
+ * Get opacity for a single marker based on number of markers 
+ */
 function getFillOpacity() {
-    return map.getZoom() / 45;
+	let opacity;
+	if (visibleMarkerPoints <= 20) opacity = .35;
+	else if (visibleMarkerPoints <= 50) opacity = .3;
+	else if (visibleMarkerPoints <= 100) opacity = .25;
+	else if (visibleMarkerPoints <= 200) opacity = .2;
+	else if (visibleMarkerPoints <= 400) opacity = .1;
+	else opacity = .05; // default
+	// console.log(opacity);
+	return opacity;
+}
+
+// to save color gradient definitions
+let svgGradientDefs = {};
+
+/**
+ * Create and store the definition for each CircleMarker's radial gradient, and return it's ID
+ */
+function getRadialGradientDef(color) {
+	let hex = color.replace("#", "");
+	let colorId = `color_${hex}`;
+	// console.log(colorId);
+	// store it in saved definitions
+	svgGradientDefs[colorId] = `
+		<radialGradient id="${colorId}">
+			<stop offset="10%" style="stop-color:#${hex}; stop-opacity:1" />
+			<stop offset="105%" style="stop-color:#${hex}; stop-opacity:0" />
+		</radialGradient>`;
+	return `url('#${colorId}')`;
+}
+/**
+ * Update color gradient definitions in SVG
+ */
+function checkAddColorGradients() {
+	let defsString = "";
+	for (const [key, value] of Object.entries(svgGradientDefs)) {
+		defsString += value;
+	}
+	// if defs has already been added then update, otherwise create
+	let defs = document.querySelector(".leaflet-overlay-pane svg defs")
+	if (defs) {
+		defs.innerHTML = defsString;
+	} else {
+		let svg = document.querySelector(".leaflet-overlay-pane svg");
+		defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
+		defs.innerHTML = defsString;
+		svg.appendChild(defs);
+	}
+	// check number added (testing)
+	// defs = document.querySelector(".leaflet-overlay-pane svg defs")
+	// console.log("defs.length", defs.length);
 }
