@@ -58,9 +58,8 @@ function createMarker(row) {
     let popupContent = `<span class="popup" style="color:${row.color};">${row.feeling}</span>`;
     let color = row.color;
     let marker = L.circleMarker([row.lat, row.lng], {
-        radius: 80,
+        radius: randomInt(70,90),
         stroke: false,
-		color: "transparent", // stroke color
         fillColor: getRadialGradientDef(row.color),
         fillOpacity: getFillOpacity(),
     });
@@ -254,9 +253,9 @@ function countVisibleMarkerPoints() {
 function getFillOpacity() {
 	let opacity;
 	if (visibleMarkerPoints <= 20) opacity = .35;
-	else if (visibleMarkerPoints <= 50) opacity = .3;
-	else if (visibleMarkerPoints <= 100) opacity = .25;
-	else if (visibleMarkerPoints <= 200) opacity = .2;
+	else if (visibleMarkerPoints <= 50) opacity = .25;
+	else if (visibleMarkerPoints <= 100) opacity = .2;
+	else if (visibleMarkerPoints <= 200) opacity = .15;
 	else if (visibleMarkerPoints <= 400) opacity = .1;
 	else opacity = .05; // default
 	// console.log(opacity);
