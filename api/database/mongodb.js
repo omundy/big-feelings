@@ -1,34 +1,41 @@
 /**
- *  mongodb.js - A simple interface for MongoDb
- *  - Owen Mundy 2025
+ *  mongodb.js - A simple database connection script and interface for MongoDb (customized for Big Feelings)
+ *  MIT Owen Mundy 2025
  */
 
-let testingPath = ""; // production
-// testingPath = "../../"; // enable for running this directly
+//////////////////////////////////////
+///////////// SETTINGS ///////////////
+//////////////////////////////////////
+
+// Mongo Atlas is structured like: cluster > database > collection
+const databaseName = "bigFeelings";
+const collectionName = "feelings"; // in a relational db a collection == table
+
+// relative path to root - leave empty for production | "../../" to run file directly
+let basePath = "";
+
 
 //////////////////////////////////////
 //////////// ENVIRONMENT /////////////
 //////////////////////////////////////
 
-// import dotenv utility (to get saved password strings)
+// import dotenv utility to load saved password strings
 import dotenv from 'dotenv'
-dotenv.config({ path: testingPath + '.env' })
-// confirm the .env file contains the MONGODB_URI variable
-if (!process.env.MONGODB_URI) {
-    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+try {
+    dotenv.config({ path: basePath + '.env' })
+    // confirm the .env file contains the MONGODB_URI variable
+    if (!process.env.MONGODB_URI)
+        throw new Error('MONGODB_URI environment variable is missing!');
+} catch (err) {
+    throw new Error("Problem getting .env file")
 }
-// else, save your MongoDB connection string
-// console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
+// save your MongoDB connection string
 const uri = process.env.MONGODB_URI;
 
 
 //////////////////////////////////////
 ////////////// CONNECT ///////////////
 //////////////////////////////////////
-
-// Mongo Atlas is structured like: cluster > database > collection
-const dbName = "bigFeelings"; // i.e. "database"
-const collectionName = "feelings"; // a.k.a. "table"
 
 // import mongo driver
 import { MongoClient, ServerApiVersion } from 'mongodb';
@@ -45,7 +52,7 @@ const client = new MongoClient(uri, {
     }
 });
 
-
+// Create remote connection to database server
 async function connectToDatabase() {
     try {
         // create MongoDB client, and scoped promise
@@ -54,19 +61,14 @@ async function connectToDatabase() {
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Connected to MongoDB!");
-        // create database reference
-        database = await client.db(dbName);
+        // save database reference
+        database = await client.db(databaseName);
+        // save collection reference (effectively the table)
         collection = await database.collection(collectionName);
     } catch (err) { console.log("Problem connecting to database", err) }
 }
 await connectToDatabase();
 
-// // close connection when server finishes/errors - unclear if still required
-// process.on('SIGINT', async function () {
-//     await client.close();
-//     console.log('Database disconnected on app termination');
-//     process.exit(0);
-// });
 
 
 
@@ -80,15 +82,16 @@ try {
         pingDatabase: async () => {
             return await client.db("admin").command({ ping: 1 });
         },
+        getDatabaseStats: async () => await database.command({ dbStats: 1 }),
         getOne: getOne,
         getAll: getAll,
         addOne: addOne,
-        dberror: async () => {
-            return new Error('A test error thrown in mongodb.js');
-        },
+        dberror: async () => new Error('A test error thrown in mongodb.js'),
+        // TESTS
         deleteAll: deleteAll,
-        addRandomDataSingle: addRandomDataSingle,
-        addRandomDataMultiple: addRandomDataMultiple,
+        deletePastRows: deletePastRows,
+        addOneTest: addOneTest,
+        addManyTest: addManyTest,
         collection: async () => collection
     };
 } catch (err) { console.log("Problem creating db", err) }
@@ -155,19 +158,19 @@ const exampleDoc = {
 };
 
 // db > add random data 
-async function addRandomDataSingle() {
+async function addOneTest() {
     try {
         let docs = [];
         // docs.push(exampleDoc);
         docs.push(creatTestDocument());
         let result = await insertDocuments(docs);
-        console.log("✅ addRandomDataSingle() - SUCCESS");
+        console.log("✅ addOneTest() - SUCCESS");
         return result;
-    } catch (err) { console.error("Problem with addRandomDataSingle()", err) }
+    } catch (err) { console.error("Problem with addOneTest()", err) }
 }
 
 // db > add multiple random data 
-async function addRandomDataMultiple(count = 50) {
+async function addManyTest(count = 50) {
     try {
         let docs = [];
         // Create new documents   
@@ -175,9 +178,9 @@ async function addRandomDataMultiple(count = 50) {
             docs.push(await creatTestDocument());
         }
         let result = await insertDocuments(docs);
-        console.log("✅ addRandomDataMultiple() - SUCCESS");
+        console.log("✅ addManyTest() - SUCCESS");
         return result;
-    } catch (err) { console.error("Problem with addRandomDataMultiple()", err) }
+    } catch (err) { console.error("Problem with addManyTest()", err) }
 }
 
 // Deletes all data in the table
@@ -185,6 +188,14 @@ async function deleteAll() {
     database.collection(collectionName).deleteMany({})
     console.log("✅ Table is empty");
 }
+async function deletePastRows(limit = 1) {
+    database.collection(collectionName).find({}).limit(limit).forEach(function(doc) {
+        database.collection(collectionName).deleteOne({_id: doc._id});
+    })
+    console.log(`✅ ${limit} have been deleted`);
+}
+
+
 
 
 
@@ -196,7 +207,7 @@ import * as fs from "fs";
 let colors;
 try {
     // uses fs because this directory is outside the /api
-    colors = JSON.parse(fs.readFileSync(testingPath + "public/assets/data/colors.json"));
+    colors = JSON.parse(fs.readFileSync(basePath + "public/assets/data/colors.json"));
 }
 catch (err) {
     throw new Error('Cant import colors');
