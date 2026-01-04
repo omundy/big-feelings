@@ -1,13 +1,20 @@
+// routes.js - Add endpoints to the API
+
+//////////////////////////////////////
+////////////// INIT //////////////////
+//////////////////////////////////////
+
+// import express, create router
+import express from 'express';
+var router = express.Router();
+
+// import database reference
+import db from "./database/mongodb.js";
+
+
 //////////////////////////////////////
 ////////////// ROUTES ////////////////
 //////////////////////////////////////
-
-// route.js - Add endpoints to the API
-
-import express from 'express';
-var router = express.Router();
-import db from "./database/mongodb.js";
-
 
 router.get("/api", async (req, res) => {
   res.send({ message: "hello" });
@@ -27,15 +34,15 @@ router.get("/api/feelings", async function (req, res) {
   res.json(result);
 });
 
-
 // 👈
+
 
 // endpoint > post a row to the database
 router.post("/api/feeling", async function (req, res) {
   let result = [];
   let data = [];
   try {
-    console.log("POST -> /api/feeling", req.body);
+    // console.log("POST -> /api/feeling", req.body);
     let doc = {
       "feeling": req.body.feeling,
       "color": req.body.color,
@@ -54,107 +61,6 @@ router.post("/api/feeling", async function (req, res) {
 const randomStr = () => Math.random().toString(36).slice(-5);
 
 
-
-//////////////////////////////////////
-//////////// TEST ROUTES /////////////
-//////////////////////////////////////
-
-// TEST ROUTES
-// - endpoints accessed directly and then redirect browser back to index.html
-// - turn these off in public version
-
-router.get("/test", async (req, res) => {
-  res.send(template("/test", "Hello from Express on Vercel"));
-});
-
-router.get('/test/error', async function (req, res) {
-  // Express will catch this on its own.
-  throw new Error('This is a test error thrown in the route handler');
-})
-router.get('/test/dberror', async function (req, res) {
-  let result = await db.dberror();
-  res.send(template("/test/dberror", result));
-})
-router.get('/test/dberrorcaught', async function (req, res) {
-  let result;
-  try {
-    result = await db.dberror();
-  }
-  catch (err) {
-    result = err;
-  }
-  res.send(template("/test/dberrorcaught", `dberrorcaught... ${JSON.stringify(result)}`));
-
-})
-
-router.get("/test/pingDatabase", async (req, res) => {
-  let result;
-  try {
-    result = await db.pingDatabase();
-  }
-  catch (err) {
-    console.log("Problem with getAll()", err);
-    result = err;
-  }
-  res.send(template("/testConnection", `Database connection is... ${JSON.stringify(result)}`));
-});
-
-router.get("/test/getAll", async (req, res) => {
-  let result;
-  let output = "";
-  try {
-    result = await db.getAll()
-    console.log("result", result);
-    if (!result) throw new Error('No data received');
-    result.forEach(element => {
-      output += `<pre>${JSON.stringify(element)}</pre>`
-    });
-  } catch (err) {
-    output = err
-  }
-  res.send(template("/test/getAll()", output));
-});
-
-router.get("/test/addRandomDataSingle", async (req, res) => {
-  let response = await db.addRandomDataSingle()
-  res.send(template("/test/addRandomDataSingle()", `<pre>${JSON.stringify(response)}</pre>`));
-});
-
-router.get("/test/addRandomDataMultiple", async (req, res) => {
-  let response = await db.addRandomDataMultiple()
-  res.send(template("/test/addRandomDataMultiple()", `<pre>${JSON.stringify(response)}</pre>`));
-});
-
-// remove all database entries
-router.get("/test/deleteAll", async function (req, res) {
-  let response = await db.deleteAll();
-  res.send(template("/test/deleteAll()", `<pre>${JSON.stringify(response)}</pre>`));
-});
-
-
-const testingLinks = [
-  '/',
-  '/test',
-  '/test/error',
-  '/test/dberror',
-  '/test/dberrorcaught',
-  '/test/pingDatabase',
-  '/test/getAll',
-  '/test/addRandomDataSingle',
-  '/test/addRandomDataMultiple',
-  // '/test/deleteAll',
-  '/api',
-  '/api/feelings'
-]
-
-const template = (title, str) => {
-  let links = `<html><head><style>body{font:16px Arial; margin: 1rem;"</style></head><body><div> <a href="/">Home</a>`
-  testingLinks.forEach((link) => {
-    links += ` <a href="${link}">${link}</a> `
-  })
-  links += `</div> <h3>${title}</h3>${str}</body></html>`;
-  return links;
-}
 
 
 
