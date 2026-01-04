@@ -5,7 +5,7 @@
 // array to hold markers
 let markerLayer = [], visibleMarkerPoints = 0;
 
-// INITIALIZE MAP
+// add map
 var map = L.map("map", {
     center: [20, -25],
     zoom: 3,
@@ -20,13 +20,7 @@ tiles = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
 L.tileLayer(tiles, {
     maxZoom: 14,
     minZoom: 2,
-    // noWrap: true,
-    // bounds: [
-    //   [-90, -180],
-    //   [90, 180]
-    // ],
-    attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
 
 /**
@@ -44,10 +38,10 @@ function updateMap(data) {
         // create marker and add to array
         markerLayer[i] = createMarker(data[i]);
     }
-    checkAddColorGradients();
-    // 👈
-}
 
+    // 👈
+    updateColorGradients();
+}
 
 
 /**
@@ -55,26 +49,22 @@ function updateMap(data) {
  * 	https://leafletjs.com/reference.html#circlemarker
  */
 function createMarker(row) {
-    let popupContent = `<span class="popup" style="color:${row.color};">${row.feeling}</span>`;
-    let color = row.color;
     let marker = L.circleMarker([row.lat, row.lng], {
-        radius: randomInt(70,90),
+        radius: randomInt(70, 90),
         stroke: false,
         fillColor: getRadialGradientDef(row.color),
         fillOpacity: getFillOpacity(),
     });
-    let popup = L.popup({ className: "hello" }).setContent(popupContent);
+    let popup = L.popup({ className: "popup-wrapper" })
+        .setContent(`<span class="popup" style="color:${row.color};">${row.feeling}</span>`);
     marker
         .addTo(map).bindPopup(popup)
         .on('click', function () {
-            console.log("createMarker()", color);
-            // updatePopupBackgroundColor(color);
+            console.log("createMarker()", row.color);
+            // updatePopupBackgroundColor(row.color);
         });
     return marker;
 }
-
-
-
 
 
 
@@ -87,68 +77,43 @@ function createMarker(row) {
 let inputMarker;
 let inputMarkerPopup = L.popup()
     .setLatLng(L.latLng([0, 0]))
-    .setContent(getInputMarkerPopup(L.latLng([0, 0])))
-// .openOn(map);
-
-
+    .setContent(getInputMarkerPopup(L.latLng([0, 0])));
 
 
 function getInputMarkerPopup(latlng, show = false) {
+    return `
+    <form class="popupInput">
+		<div class="row">
+			<div class="col">
+				<div class="select-box">
+					<div class="options-container"></div>
+					<div class="selected">How do you feel?</div>
+				</div>
+			</div>
+		</div>
 
-    return `<form class="popupInput">
-  
-          <div class="row">
-            <div class="col">
-              <div class="select-box">
-                <div class="options-container"></div>
-                <div class="selected">How do you feel?</div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="row addYourOwn">
-            <div class="col">
-              <div id="color-wrapper">
-                <input
-                  type="color"
-                  id="color"
-                  class="form-control"
-                  value="#dd00dd"
-                  title="Choose your color"
-                />
-              </div>
-              <input
-                type="text"
-                id="text"
-                class="form-control"
-                style="width:85%"
-                maxlength="140"
-                placeholder="Share your feeling and a color"
-                title="Add your text"
-              />
-            </div>
-          </div>
-          
-          <div class="row mt-2">
-            <div class="col">
-              <input
-                type="text"
-                id="location"
-                class="form-control w-100"
-                maxlength="100"
-                value="${latlng.lat},${latlng.lng}"
-                placeholder="Zoom and click map to locate your feeling"
-              />
-            </div>
-            <div class="col">
-              <button type="button" class="btn btn-light w-100 submitBtn">Submit</button>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="msg text-center"></div>
-          </div>
-        </form>`;
+		<div class="row addYourOwn">
+			<div class="col">
+				<div id="color-wrapper">
+					<input type="color" id="color" class="form-control" value="#dd00dd" title="Choose your color" />
+				</div>
+				<input type="text" id="text" class="form-control" style="width:85%" maxlength="140" placeholder="Share your feeling and a color" title="Add your text" />
+			</div>
+		</div>
+
+		<div class="row mt-2">
+			<div class="col-7">
+				<input type="text" id="location" class="form-control w-100" maxlength="100" value="${latlng.lat},${latlng.lng}" placeholder="Zoom and click map to locate your feeling" />
+			</div>
+			<div class="col-5">
+				<button type="button" class="btn btn-primary w-100 submitBtn">Submit</button>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="msg text-center"></div>
+		</div>
+	</form>`;
 }
 
 
@@ -167,8 +132,6 @@ map.on("click", (e) => {
     //   // thereafter, update its position
     //   inputMarker.setLatLng(latlng).update();
     // }
-
-
 
     console.log(latlng);
     // inputMarkerPopup.setLatLng(latlng).setContent(latlng.toString()).openOn(map);
@@ -211,7 +174,7 @@ function removeMarkers() {
     markerLayer = [];
 
     // We are about to update markers on the map, so count the number of marker points 
-	// (using global data object) that will be visible in the viewport in order to determine opacity
+    // (using global data object) that will be visible in the viewport in order to determine opacity
     visibleMarkerPoints = countVisibleMarkerPoints();
 }
 
@@ -237,29 +200,29 @@ function removeMarkers() {
  * Return number of data points in current viewport to determine marker opacity
  */
 function countVisibleMarkerPoints() {
-	var bounds = map.getBounds();
-	var count = 0;
-	for (let i = 0; i < data.length; i++) {
-		if (bounds.contains(L.latLng(data[i].lat, data[i].lng)))
-			count++;
-	}
-	console.log("visibleMarkerPoints", count);
-	return count;
+    var bounds = map.getBounds();
+    var count = 0;
+    for (let i = 0; i < data.length; i++) {
+        if (bounds.contains(L.latLng(data[i].lat, data[i].lng)))
+            count++;
+    }
+    console.log("visibleMarkerPoints", count);
+    return count;
 }
 
 /**
  * Get opacity for a single marker based on number of markers 
  */
 function getFillOpacity() {
-	let opacity;
-	if (visibleMarkerPoints <= 20) opacity = .35;
-	else if (visibleMarkerPoints <= 50) opacity = .25;
-	else if (visibleMarkerPoints <= 100) opacity = .2;
-	else if (visibleMarkerPoints <= 200) opacity = .15;
-	else if (visibleMarkerPoints <= 400) opacity = .1;
-	else opacity = .05; // default
-	// console.log(opacity);
-	return opacity;
+    let opacity;
+    if (visibleMarkerPoints <= 20) opacity = .35;
+    else if (visibleMarkerPoints <= 50) opacity = .25;
+    else if (visibleMarkerPoints <= 100) opacity = .2;
+    else if (visibleMarkerPoints <= 200) opacity = .15;
+    else if (visibleMarkerPoints <= 400) opacity = .1;
+    else opacity = .05; // default
+    // console.log(opacity);
+    return opacity;
 }
 
 // to save color gradient definitions
@@ -269,36 +232,36 @@ let svgGradientDefs = {};
  * Create and store the definition for each CircleMarker's radial gradient, and return it's ID
  */
 function getRadialGradientDef(color) {
-	let hex = color.replace("#", "");
-	let colorId = `color_${hex}`;
-	// console.log(colorId);
-	// store it in saved definitions
-	svgGradientDefs[colorId] = `
+    let hex = color.replace("#", "");
+    let colorId = `color_${hex}`;
+    // console.log(colorId);
+    // store it in saved definitions
+    svgGradientDefs[colorId] = `
 		<radialGradient id="${colorId}">
 			<stop offset="10%" style="stop-color:#${hex}; stop-opacity:1" />
 			<stop offset="105%" style="stop-color:#${hex}; stop-opacity:0" />
 		</radialGradient>`;
-	return `url('#${colorId}')`;
+    return `url('#${colorId}')`;
 }
 /**
  * Update color gradient definitions in SVG
  */
-function checkAddColorGradients() {
-	let defsString = "";
-	for (const [key, value] of Object.entries(svgGradientDefs)) {
-		defsString += value;
-	}
-	// if defs has already been added then update, otherwise create
-	let defs = document.querySelector(".leaflet-overlay-pane svg defs")
-	if (defs) {
-		defs.innerHTML = defsString;
-	} else {
-		let svg = document.querySelector(".leaflet-overlay-pane svg");
-		defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
-		defs.innerHTML = defsString;
-		svg.appendChild(defs);
-	}
-	// check number added (testing)
-	// defs = document.querySelector(".leaflet-overlay-pane svg defs")
-	// console.log("defs.length", defs.length);
+function updateColorGradients() {
+    let defsString = "";
+    for (const [key, value] of Object.entries(svgGradientDefs)) {
+        defsString += value;
+    }
+    // if defs has already been added then update, otherwise create
+    let defs = document.querySelector(".leaflet-overlay-pane svg defs")
+    if (defs) {
+        defs.innerHTML = defsString;
+    } else {
+        let svg = document.querySelector(".leaflet-overlay-pane svg");
+        defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
+        defs.innerHTML = defsString;
+        svg.appendChild(defs);
+    }
+    // check number added (testing)
+    // defs = document.querySelector(".leaflet-overlay-pane svg defs")
+    // console.log("defs.length", defs.length);
 }

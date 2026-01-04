@@ -8,51 +8,48 @@
 function getCircle(color) {
 	let radius = 11;
 	return `<span class="circle" style="width:${radius * 2}px; 
-              height:${radius * 2}px; 
-              background-color: ${color}; "></span>`;
+              height:${radius * 2}px; background-color: ${color}; "></span>`;
 }
 
 /**
  *  Get HTML for an option in the select drop down
  */
 function getOption(id, feeling, color) {
-	return `<div class="option">
+	return `
+		<div class="option">
             ${getCircle(color)}
-            <input type="radio" class="radio" id="${id}" name="feelings" />
-            <label for="${id}">${feeling}</label>
-          </div>`;
+			<input type="radio" class="radio" id="${id}" name="feelings" />
+			<label for="${id}">${feeling}</label>
+        </div>`;
 }
 
-function displayData(data) {
-	let list = "";
-	// console.log(data);
-	for (let row in data) {
-		// console.log(data[row]);
-		list += `
-      	<tr>
-			<td>${getCircle(data[row].color)}</td> 
-			<td>${data[row].id}</td> 
-			<td>${data[row].feeling}</td> 
-			<td>${data[row].color}</td>
-			<td>${data[row].lat}</td>
-			<td>${data[row].lng}</td>
-			<td>${data[row].datetime}</td>
-        </tr>`;
-	}
-	document.querySelector("#rows").innerHTML = list;
-}
 
-// header blur effect
+// logo blur effect
 let logo = document.querySelector("svg.logo");
-let blur = 10;
-let blurInt = setInterval(function () {
-	blur = blur * 0.8;
-	logo.style.filter = `blur(${blur}px)`;
-	if (blur <= 0.001) {
-		clearInterval(blurInt);
-		logo.style.filter = `blur(0px)`;
-	}
-}, 170);
+let blurInterval, blurValue, blurMax = 15, blurMin = .1, blurStep = .5;
+function showBlur(blurValue, step) {
+	if (blurInterval) return;
+	blurInterval = setInterval(function () {
+		blurValue += step;
+		console.log("blurValue", blurValue)
+		logo.style.filter = `blur(${blurValue}px)`;
+		if (blurValue <= blurMin) {
+			clearInterval(blurInterval);
+			blurInterval = undefined;
+			logo.style.filter = `blur(0px)`;
+		} else if (blurValue > blurMax){
+			clearInterval(blurInterval);
+			blurInterval = undefined;
+			showBlur(blurMax, -blurStep);
+		}
+	}, 90);
+}
+showBlur(blurMax, -blurStep);
+logo.addEventListener("click", function () {
+	showBlur(1, blurStep);
+});
+
+
 
 /**
  *  Create the list of options in the drop down (with color circles)
