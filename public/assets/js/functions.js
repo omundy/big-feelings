@@ -31,7 +31,7 @@ function showBlur(blurValue, step) {
 	if (blurInterval) return;
 	blurInterval = setInterval(function () {
 		blurValue += step;
-		console.log("blurValue", blurValue)
+		// console.log("blurValue", blurValue);
 		logo.style.filter = `blur(${blurValue}px)`;
 		if (blurValue <= blurMin) {
 			clearInterval(blurInterval);

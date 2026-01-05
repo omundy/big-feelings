@@ -12,8 +12,7 @@ var map = L.map("map", {
 });
 
 // url for tileset
-let tiles =
-    "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
+let tiles = "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
 tiles = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
 
 // add tile layer
@@ -34,15 +33,17 @@ function updateMap(data) {
     // loop through JSON
     for (let i = 0; i < data.length; i++) {
         // console.log(data[i]);
-
         // create marker and add to array
         markerLayer[i] = createMarker(data[i]);
     }
 
     // 👈
-    updateColorGradients();
+    afterUpdateMap();
 }
 
+function afterUpdateMap(){
+    if (data.length > 0) updateColorGradients();
+}
 
 /**
  *  Create and add feeling CircleMarker to map
@@ -60,13 +61,11 @@ function createMarker(row) {
     marker
         .addTo(map).bindPopup(popup)
         .on('click', function () {
-            console.log("createMarker()", row.color);
+            console.log(`_id="${row._id}", feeling="${row.feeling}", color="${row.color}"`);
             // updatePopupBackgroundColor(row.color);
         });
     return marker;
 }
-
-
 
 
 //////////////////////////////////////
@@ -74,13 +73,11 @@ function createMarker(row) {
 //////////////////////////////////////
 
 // web form inside popup
-let inputMarker;
-let inputMarkerPopup = L.popup()
+let inputPopup = L.popup()
     .setLatLng(L.latLng([0, 0]))
-    .setContent(getInputMarkerPopup(L.latLng([0, 0])));
+    .setContent(getInputPopupContent(L.latLng([0, 0])));
 
-
-function getInputMarkerPopup(latlng, show = false) {
+function getInputPopupContent(latlng) {
     return `
     <form class="popupInput">
 		<div class="row">
@@ -117,30 +114,18 @@ function getInputMarkerPopup(latlng, show = false) {
 }
 
 
-
 map.on("click", (e) => {
     // wrap latlng (reset coordinates on dateline -180 and +180 degrees)
     let latlng = L.latLng([e.latlng.lat, e.latlng.lng]).wrap();
     // prevent specific locations
     latlng.lat = Number(latlng.lat.toPrecision(5));
     latlng.lng = Number(latlng.lng.toPrecision(5));
-
-    // if (!inputMarker) {
-    //   // inputMarker doesn't yet exist
-    //   inputMarker = L.marker(latlng).addTo(map);
-    // } else {
-    //   // thereafter, update its position
-    //   inputMarker.setLatLng(latlng).update();
-    // }
-
-    console.log(latlng);
-    // inputMarkerPopup.setLatLng(latlng).setContent(latlng.toString()).openOn(map);
-    inputMarkerPopup.setLatLng(latlng);
-    map.openPopup(inputMarkerPopup);
+    console.log("click", latlng);
+    inputPopup.setLatLng(latlng);
+    map.openPopup(inputPopup);
     // updatePopupBackgroundColor("white");
     let location = document.querySelector("#location");
     location.value = `${latlng.lat},${latlng.lng}`;
-
     document.querySelector(".submitBtn").addEventListener("click", submitForm);
     updateOptions(colors);
 });
@@ -180,7 +165,7 @@ function removeMarkers() {
 
 
 //////////////////////////////////////
-///////// FUNCTIONS > COLOR //////////
+/////////////// COLOR ////////////////
 //////////////////////////////////////
 
 /**
@@ -206,7 +191,7 @@ function countVisibleMarkerPoints() {
         if (bounds.contains(L.latLng(data[i].lat, data[i].lng)))
             count++;
     }
-    console.log("visibleMarkerPoints", count);
+    // console.log("visibleMarkerPoints", count);
     return count;
 }
 
@@ -238,8 +223,8 @@ function getRadialGradientDef(color) {
     // store it in saved definitions
     svgGradientDefs[colorId] = `
 		<radialGradient id="${colorId}">
-			<stop offset="10%" style="stop-color:#${hex}; stop-opacity:1" />
-			<stop offset="105%" style="stop-color:#${hex}; stop-opacity:0" />
+			<stop offset="5%" style="stop-color:#${hex}; stop-opacity:1" />
+			<stop offset="95%" style="stop-color:#${hex}; stop-opacity:0" />
 		</radialGradient>`;
     return `url('#${colorId}')`;
 }
