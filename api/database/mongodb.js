@@ -56,7 +56,6 @@ const client = new MongoClient(uri, {
 async function connectToDatabase() {
     try {
         // create MongoDB client, and scoped promise
-        // client = new MongoClient(uri, {});
         clientPromise = await client.connect();
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
@@ -65,7 +64,11 @@ async function connectToDatabase() {
         database = await client.db(databaseName);
         // save collection reference (effectively the table)
         collection = await database.collection(collectionName);
-    } catch (err) { console.log("Problem connecting to database", err) }
+    } catch (err) {
+        // an exception should change the flow of control of the application, because something is wrong
+        // this error should be addressed before continuing
+        throw new Error("Problem connecting to database");
+    }
 }
 await connectToDatabase();
 
@@ -79,9 +82,7 @@ await connectToDatabase();
 let db;
 try {
     db = {
-        pingDatabase: async () => {
-            return await client.db("admin").command({ ping: 1 });
-        },
+        pingDatabase: async () => client.db("admin").command({ ping: 1 }),
         getDatabaseStats: async () => await database.command({ dbStats: 1 }),
         getOne: getOne,
         getAll: getAll,
@@ -94,7 +95,10 @@ try {
         addManyTest: addManyTest,
         collection: async () => collection
     };
-} catch (err) { console.log("Problem creating db", err) }
+} catch (err) {
+    // this error should be addressed before continuing
+    throw new Error("Problem creating db");
+}
 export default db;
 
 //////////////////////////////////////
@@ -109,7 +113,7 @@ async function getOne() {
         const feelings = await collection.findOne(findOneQuery);
         // console.log(feelings)
         return feelings;
-    } catch (err) { console.log("Problem with getAll()", err) }
+    } catch (err) { console.error("Problem with getAll()", err) }
 }
 // db > get all data (via API)
 async function getAll() {
@@ -118,7 +122,7 @@ async function getAll() {
         const feelings = await collection.find({}).toArray();
         // console.log(feelings)
         return feelings;
-    } catch (err) { console.log("Problem with getAll()", err) }
+    } catch (err) { console.error("Problem with getAll()", err) }
 }
 // db > add data from form (via API)
 async function addOne(doc) {
@@ -141,7 +145,7 @@ async function insertDocuments(docs) {
                 console.log("✅ insertDocuments()", err, docs);
             });
         return response;
-    } catch (err) { console.log("Problem with insertDocuments()", err) }
+    } catch (err) { console.error("Problem with insertDocuments()", err) }
 }
 
 
@@ -185,14 +189,18 @@ async function addManyTest(count = 50) {
 
 // Deletes all data in the table
 async function deleteAll() {
-    database.collection(collectionName).deleteMany({})
-    console.log("✅ Table is empty");
+    try {
+        database.collection(collectionName).deleteMany({})
+        console.log("✅ Table is empty");
+    } catch (err) { console.error("Problem with deleteAll()", err) }
 }
 async function deletePastRows(limit = 1) {
-    database.collection(collectionName).find({}).limit(limit).forEach(function(doc) {
-        database.collection(collectionName).deleteOne({_id: doc._id});
-    })
-    console.log(`✅ ${limit} have been deleted`);
+    try {
+        database.collection(collectionName).find({}).limit(limit).forEach(function (doc) {
+            database.collection(collectionName).deleteOne({ _id: doc._id });
+        })
+        console.log(`✅ ${limit} have been deleted`);
+    } catch (err) { console.error("Problem with deletePastRows()", err) }
 }
 
 
@@ -203,18 +211,7 @@ async function deletePastRows(limit = 1) {
 /////////////// HELPERS //////////////
 //////////////////////////////////////
 
-import * as fs from "fs";
-let colors;
-try {
-    // uses fs because this directory is outside the /api
-    colors = JSON.parse(fs.readFileSync(basePath + "public/assets/data/colors.json"));
-}
-catch (err) {
-    throw new Error('Cant import colors');
-}
-
-
-
+import colors from "../data/colors.js";
 import testGeo from "../data/test-geo.js";
 
 // creates data for a row
