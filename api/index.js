@@ -81,7 +81,7 @@ try {
 } catch (err) {
     throw new Error("Problem getting .env file")
 }
-// \⚠️ 
+// ⚠️ 
 
 // start server
 app.listen(port, () => console.log(`Your app is listening at: http://localhost:${port}.`));

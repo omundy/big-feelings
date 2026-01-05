@@ -42,7 +42,8 @@ function updateMap(data) {
 }
 
 function afterUpdateMap(){
-    if (data.length > 0) updateColorGradients();
+    if (data.length > 0 && markerLayer.length > 0) 
+        updateColorGradients();
 }
 
 /**

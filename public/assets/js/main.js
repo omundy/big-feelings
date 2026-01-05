@@ -4,15 +4,15 @@
 /////////////// INIT /////////////////
 //////////////////////////////////////
 
-// base url for self-hosted API
-let baseurl = "";
+// base url for 10.3
+let baseurl = "https://big-feelings.vercel.app";
 
-// base url for remote API
-// baseurl = "https://big-feelings.vercel.app";
-
-// 👉 add code inside this function (Chapter 10 wiki) ...
-// base url for localhost
+// ⚠️ base url for localhost testing
 // baseurl = "http://localhost:3000";
+// ⚠️ 
+
+// 👉 add new base url to pull from your own database (Chapter 10 wiki) ...
+baseurl = "";
 // 👈
 
 
@@ -24,7 +24,7 @@ async function main() {
     // 👉 add code inside this function (Chapter 10) ...
 
     data = await fetchFeelings();
-    // console.log("data", data)
+    console.log("data", data);
 
     // update the map
     await updateMap(data);
@@ -60,7 +60,7 @@ async function fetchData(url) {
     return await fetch(url)
         .then((response) => response.json())
         .then((json) => {
-            console.log("fetch() response", json);
+            // console.log("fetch() response", json);
             return json;
         })
         .catch((err) => {
@@ -74,17 +74,20 @@ async function fetchData(url) {
  * Submit form handler
  */
 function submitForm(e) {
-    e.preventDefault();
     try {
         // 👉 add code inside this function (Chapter 10 wiki) ...
 
+        // step 1 - get form data
+        e.preventDefault();
         let data = getFormData();
         console.log("data", data);
+
+        // extra
         if (data.feeling == "" || data.lat == "" || data.lng == "") {
             throw new Error("The feeling or location is missing");
         }
 
-        // create options object to send data, options
+        // step 2 - create options object to send data
         let options = {
             method: "POST",
             headers: {
@@ -93,12 +96,13 @@ function submitForm(e) {
             body: JSON.stringify(data),
         };
         // console.log("submit", data);
+
+        // step 3 - use fetch to send data
         fetch(baseurl + "/api/feeling", options)
             .then((response) => response.json())
             .then(async (json) => {
                 console.log("/feeling", json);
                 await updateMap(json);
-                // await displayData(json);
                 showSuccessMsg("Your feeling was added", data.color);
             }).catch((err) => console.error("submitForm() error", err));
 

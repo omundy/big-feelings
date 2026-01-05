@@ -21,20 +21,8 @@ router.get("/api", async (req, res) => {
 });
 
 
-// 👉 add test data endpoint here (Chapter 10 wiki) ...
 
-// // endpoint > add test data
-// router.get("/addOneTest", async function (request, reply) {
-//     await db.addOneTest();
-//     reply.redirect("/");
-// });
-
-// 👈
-
-
-// 👉 add endpoint to retrieve data here (Chapter 10 wiki) ...
-
-// endpoint > get all the rows in the database
+// 👉 add endpoint to get all the rows in the database (Chapter 10 wiki) ...
 router.get("/api/feelings", async function (req, res) {
     if (!db) throw new Error('Database not found');
     let result = [];
@@ -46,7 +34,14 @@ router.get("/api/feelings", async function (req, res) {
     }
     res.json(result);
 });
+// 👈
 
+
+// 👉 add endpoint to insert test data (Chapter 10 wiki) ...
+router.get("/api/addOneTest", async function (req, res) {
+    let result = await db.addOneTest();
+    res.send({ message: result });
+});
 // 👈
 
 
