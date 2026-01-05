@@ -27,7 +27,7 @@ try {
     if (!process.env.MONGODB_URI)
         throw new Error('MONGODB_URI environment variable is missing!');
 } catch (err) {
-    throw new Error("Problem getting .env file")
+    throw new Error("Problem getting .env file: ", err)
 }
 // save your MongoDB connection string
 const uri = process.env.MONGODB_URI;
@@ -38,7 +38,7 @@ const uri = process.env.MONGODB_URI;
 //////////////////////////////////////
 
 // import mongo driver
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 
 // module-scoped variables
 let clientPromise, database, collection;
@@ -49,7 +49,7 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
 });
 
 // Create remote connection to database server
@@ -67,7 +67,7 @@ async function connectToDatabase() {
     } catch (err) {
         // an exception should change the flow of control of the application, because something is wrong
         // this error should be addressed before continuing
-        throw new Error("Problem connecting to database");
+        throw new Error("Problem connecting to database:", err);
     }
 }
 await connectToDatabase();
@@ -83,7 +83,14 @@ let db;
 try {
     db = {
         pingDatabase: async () => client.db("admin").command({ ping: 1 }),
-        getDatabaseStats: async () => await database.command({ dbStats: 1 }),
+        // getDatabaseStats: async () => await database.command({ dbStats: 1 }),
+        getDatabaseStats: async () => await database.stats(),
+        getIndexes: getIndexes,
+        getMaxId: async () => {
+            let result = await database.collection(collectionName).find().sort({ _id: -1 }).limit(1).toArray();
+            if (result.length == 0) return 0;
+            return result[0]._id;
+        },
         getOne: getOne,
         getAll: getAll,
         addOne: addOne,
@@ -91,13 +98,15 @@ try {
         // TESTS
         deleteAll: deleteAll,
         deletePastRows: deletePastRows,
+        deleteById: deleteById,
+        findById: findById,
         addOneTest: addOneTest,
         addManyTest: addManyTest,
         collection: async () => collection
     };
 } catch (err) {
     // this error should be addressed before continuing
-    throw new Error("Problem creating db");
+    throw new Error("Problem creating db:", err);
 }
 export default db;
 
@@ -105,24 +114,65 @@ export default db;
 //////////// DB FUNCTIONS ////////////
 //////////////////////////////////////
 
+// db > get list of indexes
+async function getIndexes() {
+    let result = [];
+    try {
+        const query = {};
+        // https://www.mongodb.com/docs/drivers/node/current/indexes/#list-indexes
+        result = await database.collection(collectionName).listIndexes().toArray();
+        // console.log(result)
+    } catch (err) {
+        result = [{ message: "Problem with getIndexes(): " + err }];
+        console.error(result);
+    }
+    return result;
+}
+
+// Find by id
+async function findById(id) {
+    let result = [];
+    try {
+        // required for seaching using mongodb created id
+        // if (!ObjectId.isValid(id)) throw new Error("id is not valid");
+        // const _id = new ObjectId(id.trim());
+        
+        // now using integer
+        const query = { _id: Number(id) };
+        result = await collection.find(query).toArray();
+        console.log(result);
+    } catch (err) {
+        result = [{ message: "Problem with findById(): " + err }];
+        console.error(result);
+    }
+    return result;
+}
+
 // db > get one data (via API)
 async function getOne() {
-    // return await collection.find({}).toArray();
+    let result = [];
     try {
-        const findOneQuery = { feeling: "WTF?" };
-        const feelings = await collection.findOne(findOneQuery);
-        // console.log(feelings)
-        return feelings;
-    } catch (err) { console.error("Problem with getAll()", err) }
+        // const query = { feeling: "WTF?" };
+        const query = {};
+        result = await collection.find(query).limit(1).toArray();
+        // console.log(result)
+    } catch (err) {
+        result = [{ message: "Problem with getOne(): " + err }];
+        console.error(result);
+    }
+    return result;
 }
 // db > get all data (via API)
 async function getAll() {
-    // return await collection.find({}).toArray();
+    let result = [];
     try {
-        const feelings = await collection.find({}).toArray();
-        // console.log(feelings)
-        return feelings;
-    } catch (err) { console.error("Problem with getAll()", err) }
+        result = await collection.find({}).toArray();
+        // console.log(result)
+    } catch (err) {
+        result = [{ message: "Problem with getAll(): " + err }];
+        console.error(result);
+    }
+    return result;
 }
 // db > add data from form (via API)
 async function addOne(doc) {
@@ -138,14 +188,38 @@ async function addOne(doc) {
 async function insertDocuments(docs) {
     // console.log(docs);
     try {
-        // Insert the documents into the specified collection        
-        const response = await database
-            .collection(collectionName)
-            .insertMany(docs, { ordered: false }, function (err, docs) {
-                console.log("✅ insertDocuments()", err, docs);
-            });
-        return response;
-    } catch (err) { console.error("Problem with insertDocuments()", err) }
+        // insertMany surely has some bugs - impossible to avoid "MongoBulkWriteError: E11000 duplicate key error collection"
+        // // If documents passed in do not contain the _id field, one will be added to each of the documents missing it by the driver
+        // // https://mongodb.github.io/node-mongodb-native/7.0/classes/Collection.html#insertMany
+        // // Insert ID (testing) 
+        // // for (let i = 0; i < docs.length; i++) {
+        // //     if (!docs._id) {
+        // //         docs[i]._id = randomStrTotal();
+        // //         console.log("XXX added id " + docs[i]._id);
+        // //     }
+        // // }
+        // // true = prevents additional documents from being inserted if one fails
+        // const options = { ordered: false };
+        // // Insert the documents into the specified collection      
+        // // https://www.mongodb.com/docs/drivers/node/current/crud/insert/#insert-multiple-documents  
+        // const result = await database.collection(collectionName).insertMany(docs, options);
+
+        // this is kind of a hack - replacing mongodb's built in index with integer, but it works!
+        let maxId = await db.getMaxId();
+        console.log(maxId)
+        let results = [];
+        for (let i = 0; i < docs.length; i++) {
+            // docs[i]._id = randomStrTotal();
+            docs[i]._id = i + maxId + 1;
+            // https://www.mongodb.com/docs/drivers/node/current/crud/insert/#insert-a-single-document
+            let result = await database.collection(collectionName).insertOne(docs[i]);
+            // console.log(`A document was inserted: _id=${result.insertedId}`);
+            results.push(result);
+        }
+        return `${results.length} documents inserted`;
+    } catch (err) {
+        throw new Error("Problem with insertDocuments()" + err)
+    }
 }
 
 
@@ -153,19 +227,10 @@ async function insertDocuments(docs) {
 ////////////// TESTING ///////////////
 //////////////////////////////////////
 
-const exampleDoc = {
-    "feeling": "Totz Bored",
-    "color": "#FF2E24",
-    "lat": 32.067665100,
-    "lng": 34.776332855,
-    "datetime": new Date(2025, 5, 7),  // May 7, 2025                                                                                                                                  
-};
-
 // db > add random data 
 async function addOneTest() {
     try {
         let docs = [];
-        // docs.push(exampleDoc);
         docs.push(creatTestDocument());
         let result = await insertDocuments(docs);
         console.log("✅ addOneTest() - SUCCESS");
@@ -174,7 +239,7 @@ async function addOneTest() {
 }
 
 // db > add multiple random data 
-async function addManyTest(count = 50) {
+async function addManyTest(count = 1) {
     try {
         let docs = [];
         // Create new documents   
@@ -184,26 +249,53 @@ async function addManyTest(count = 50) {
         let result = await insertDocuments(docs);
         console.log("✅ addManyTest() - SUCCESS");
         return result;
-    } catch (err) { console.error("Problem with addManyTest()", err) }
+    } catch (err) {
+        let msg = "Problem with addManyTest(): " + err;
+        console.error(msg);
+        return msg;
+    }
 }
 
 // Deletes all data in the table
 async function deleteAll() {
+    let msg = `✅ Table is empty`;
     try {
-        database.collection(collectionName).deleteMany({})
-        console.log("✅ Table is empty");
-    } catch (err) { console.error("Problem with deleteAll()", err) }
+        database.collection(collectionName).deleteMany({ test: true })
+        console.log(msg);
+    } catch (err) {
+        msg = "Problem with deleteAll(): " + err;
+        console.error(msg);
+    }
+    return msg;
 }
+// Delete N rows
 async function deletePastRows(limit = 1) {
+    let msg = `✅ ${limit} have been deleted`;
     try {
         database.collection(collectionName).find({}).limit(limit).forEach(function (doc) {
-            database.collection(collectionName).deleteOne({ _id: doc._id });
+            database.collection(collectionName).deleteOne({ _id: doc._id, test: true });
         })
-        console.log(`✅ ${limit} have been deleted`);
-    } catch (err) { console.error("Problem with deletePastRows()", err) }
+        console.log(msg);
+    } catch (err) {
+        msg = "Problem with deletePastRows(): " + err;
+        console.error(msg);
+    }
+    return msg;
 }
-
-
+// Delete by id
+async function deleteById(id) {
+    let msg = `✅ ${id} has been deleted`;
+    try {
+        // if (!ObjectId.isValid(id)) throw new Error("id is not valid");
+        // const _id = new ObjectId(id.trim());
+        database.collection(collectionName).deleteOne({ "_id": Number(id), test: true });
+        console.log(msg);
+    } catch (err) {
+        msg = "Problem with deleteById(): " + err;
+        console.error(msg);
+    }
+    return msg;
+}
 
 
 
@@ -214,19 +306,29 @@ async function deletePastRows(limit = 1) {
 import colors from "../data/colors.js";
 import testGeo from "../data/test-geo.js";
 
+// just for reference
+const example = {
+    "feeling": "Totz Bored",
+    "color": "#FF2E24",
+    "lat": 32.0676,
+    "lng": 34.7763,
+    "datetime": new Date(2025, 5, 7),  // May 7, 2025
+    "test": true
+};
+
 // creates data for a row
 function creatTestDocument() {
     let data = colors[Math.floor(Math.random() * colors.length)];
     let testGeo = randomLatLng() || "";
-    data._id = randomStr() + randomStr();
     data.lat = Number(testGeo.latitude || ""); // convert to number
     data.lng = Number(testGeo.longitude || "");
     data.datetime = new Date();
+    data.test = true;
     // console.log("creatTestDocument()", data);
     return data;
 }
-
 const randomStr = () => Math.random().toString(36).slice(-5);
+const randomStrTotal = () => randomStr() + randomStr() + randomStr() + randomStr();
 const randomLatLng = () => testGeo[Math.floor(Math.random() * testGeo.length)];
 
 // these numbers are too random
