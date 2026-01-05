@@ -4,11 +4,15 @@
 /////////////// INIT /////////////////
 //////////////////////////////////////
 
-// base url for API
-// let baseurl = "https://big-feelings.vercel.app";
+// base url for self-hosted API
+let baseurl = "";
+
+// base url for remote API
+// baseurl = "https://big-feelings.vercel.app";
+
 // 👉 add code inside this function (Chapter 10 wiki) ...
-let baseurl = "http://localhost:3000";
-// let baseurl = "";
+// base url for localhost
+// baseurl = "http://localhost:3000";
 // 👈
 
 

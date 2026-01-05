@@ -13,38 +13,38 @@ const colors = [
   },
   {
     "feeling": "TGIF",
-    "color": "#FF5A0A"
+    "color": "#FF7A3A"
   },
   {
     "feeling": "Totz Bored",
-    "color": "#FF2E24"
+    "color": "#FF6159"
   },
   {
     "feeling": "Wait, whaaaat?",
-    "color": "#FF073A"
+    "color": "#FF597B"
   },
   {
     "feeling": "Sneaky",
-    "color": "#D10172"
+    "color": "#D7559C"
   },
   {
     "feeling": "Irreverent",
-    "color": "#9F01AA"
+    "color": "#C349CC"
   },
   {
     "feeling": "Tired of this Sh*t",
-    "color": "#5E01F3"
+    "color": "#9C5FFF"
   },
   {
     "feeling": "WTF?",
-    "color": "#4117FF"
+    "color": "#8165FF"
   },
   {
     "feeling": "Need a Xanax",
-    "color": "#2837FF"
+    "color": "#747EFF"
   },
   {
     "feeling": "Lonely AF",
-    "color": "#095FFF"
+    "color": "#5892FE"
   }
 ]
