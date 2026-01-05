@@ -16,11 +16,8 @@ async function main() {
 }
 main();
 
-// global placeholder for colors
-let colors;
 // create interface
 (async () => {
-    colors = await fetchColors();
     // update drop down
     updateOptions(colors);
 })();

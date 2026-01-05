@@ -1,4 +1,4 @@
-[
+const colors = [
   {
     "feeling": "YAZZZZ!",
     "color": "#FFD538"
@@ -48,3 +48,4 @@
     "color": "#095FFF"
   }
 ]
+export default colors;
