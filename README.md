@@ -3,66 +3,25 @@
 <!-- 
 Note: The README instructions are the same across the two projects... 
 
-Since moving from hosting from Glitch to Github:
+Moving from Glitch to Github:
 - You can't have a forked repo and the original in the same account. 
 - You can't sync a fork of a template repo with the original.
 - So, in order for -starter to be a fork of the original (to sync w/it), the original repo is under omundy/ and -starter (template) is under criticalwebdesign/ 
-
 -->
 
-A web map where users can share and locate their current emotional state (in text and color) on a world map.
-
-## How does it work?
-
-This project uses Node.js (backend) to returns data to the browser (frontend).
-
-- `public/index.html`: The frontend for the API, uses client side JS to make requests to the server.
-- `api/index.js`: [Node.js](https://nodejs.org/en/about/) runs Javascript in the backend using the Express framework to start the server and import the `routes.js` file
-- `api/mongodb.js` creates the database connection
-- `api/routes.js` contains the endpoints that return data
-- `package.json`: Project dependencies
-
-## Notes
-
-- The finished version https://github.com/omundy/big-feelings
-- The starter project https://github.com/criticalwebdesign/big-feelings-starter appears in Chapter 10 "Design & Power"in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press).
-
-
-<hr>
+A web map where users can share and locate their current emotional state (in text and color) on a world map: [big-feelings.vercel.app](https://big-feelings.vercel.app/)
 
 
 
-## Production Notes
 
-### Database(s)
+## About
 
-- We first tried LowDB, which looks promising. However, Glitch [is currently @ Node 16](https://help.glitch.com/hc/en-us/articles/16287495688845-What-version-of-Node-can-I-use-and-how-do-I-change-update-upgrade-it) but the [latest Lowdb](https://github.com/typicode/lowdb/releases) (7.\*) doesn't support Node 16
-- SQLite documentation: [Connect with Node.js](https://www.sqlitetutorial.net/sqlite-nodejs/connect/), [SQLite Codecademy Cheatsheet](https://www.codecademy.com/learn/connecting-javascript-and-sql/modules/learn-node-sqlite-module/cheatsheet)
-- Switched to Vercel + MongoDB (Atlas) after the [Glitch announcement](https://www.theverge.com/news/673457/glitch-coding-platform-shutting-down) but results have been mixed. Connections don't seem to be reliable.
+This project appears in Chapter 10 "Design and Power" in <em>Critical Web Design</em> by xtine burrough and Owen Mundy (MIT Press), 2026.
+
+- The frontend tutorial in Chapter 10 uses the [big-feelings-starter repository](https://github.com/criticalwebdesign/big-feelings-starter).
+- The backend tutorial is available in [bonus module 9.4 on the CWD Wiki](https://criticalwebdesign.github.io/wiki/chapter-10/10-4-big-feelings/).
+- The finished code is available [here](https://github.com/omundy/big-feelings).
 
 
 
-### Leaflet
 
-In order to make the circle sizes appear constant relative to the interface we used [`L.circleMarker()`](https://leafletjs.com/reference.html#circlemarker-option) (radius in pixels) ...
-
-```js
-let marker = L.circleMarker([data[i].lat, data[i].lng], {
-  radius: 50,
-  stroke: false,
-  color: "red",
-  fillOpacity: 0.3,
-});
-```
-
-... instead of [`L.circle()`](https://leafletjs.com/reference.html#circle) (radius in meters).
-
-```js
-var circle = L.circle([data[i].lat, data[i].lng], {
-  radius: 350000,
-  stroke: false,
-  fillColor: "#f03",
-  color: "red",
-  fillOpacity: 0.3,
-});
-```
