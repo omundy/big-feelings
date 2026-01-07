@@ -9,9 +9,10 @@ Moving from Glitch to Github:
 - So, in order for -starter to be a fork of the original (to sync w/it), the original repo is under omundy/ and -starter (template) is under criticalwebdesign/ 
 -->
 
-A web map where users can share and locate their current emotional state (in text and color) on a world map: [big-feelings.vercel.app](https://big-feelings.vercel.app/)
+A website where users can locate their current emotional state (in text + color) on a world map: [big-feelings.vercel.app](https://big-feelings.vercel.app/)
 
 
+![screenshot](public/assets/img/10-22-big-feelings-finished-2026.png)
 
 
 ## About
