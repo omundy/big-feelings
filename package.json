@@ -11,13 +11,15 @@
     "dev": "nodemon api/index.js"
   },
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "mongodb": "^6.16.0",
-    "morgan-body": "^2.6.9",
-    "nodemon": "^3.1.10",
-    "vercel": "^42.2.0"
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "mongodb": "^6.21.0",
+    "morgan-body": "^2.6.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11",
+    "vercel": "^50.11.0"
   }
 }
